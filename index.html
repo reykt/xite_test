@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XITE Test</title>
+    <style>
+    input:focus{outline-style: none; border-style: none;}
+    input{color: ghostwhite; background-color: black; border-style: none; font-size: 400%; font-family: Arial, Helvetica, sans-serif;}
+    p{color: deeppink; font-size: 400%; font-family: Arial, Helvetica, sans-serif;}
+    body{background-color: black;}
+    </style>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/9/92/Logo_XITE_2017_zwart.png">
+</head>
+<body>
+<!-- 
+    I wanted to create a simple web-application that would check whether a number is prime or not.
+    My concept in a nutshell:
+    - Allow only digits 0-9 for input
+    - Immediately provide feedback after input is registered (true/false)
+    - No need to hit Enter or press 'Submit' button
+    - Provide additional feedback (divisors)
+    - Check for invalid input like 00, 01, 00136 etc
+    - Layout: Input field, Answer, Divisor
+-->
+    <input type="tel" id="finalInput" oninput="allowOnlyDigits(this)" placeholder="type in a number" autofocus>
+    <p id="answer"></p>
+    <p id="divisor" style="color: lightslategray;"></p>
+    <script>
+        // I've split the functionality into 3 functions
+        // allowOnlyDigits() is called every time new input is registered and filters all characters except 0-9
+        // then it calls the second fucntion, showAnswer()
+        function allowOnlyDigits (input)
+        {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            showAnswer();
+        }
+        // I needed to make sure that for each scenario an appropriate feedback is displayed. 
+        function showAnswer()
+        {
+            //in first function we adjusted each new character separately, but now we want to collect the complete number from the input field and check whether it's a prime number
+            let finalNumber = document.getElementById("finalInput").value;
+            
+            //if input field is empty, we want to clear previous feedback (true/false/divisors)
+            if (finalNumber.length === 0)
+            {
+                document.getElementById("answer").innerHTML = '';
+                document.getElementById("divisor").innerHTML = ''
+            }
+            //for 1 digit we need no additional rules (it can be anything from 0-9 and we allow only those digits already)
+            //thus proceed to Primes()
+            else if (finalNumber.length === 1)
+             {
+                 document.getElementById("answer").innerHTML = Primes(finalNumber);
+             }
+            //if a number has more than 1 digits, we want make sure it does not start with 0, and provide feedback if it does
+            else if (finalNumber.length > 1 && finalNumber.charAt(0) === '0')
+            {
+                document.getElementById("answer").style.color = "maroon";
+                document.getElementById("answer").innerHTML = 'invalid number';
+                document.getElementById("divisor").innerHTML = '';
+            }
+            //i've noticed weird behaviour when pasting large prime numbers from Wikipedia, so I added a virtual limit (because it actually might be 16 or 17 digits) to prevent wrong answers
+            else if (finalNumber.length > 15)
+            {
+                document.getElementById("answer").style.color = "maroon";
+                document.getElementById("answer").innerHTML = 'number is too large';
+                document.getElementById("divisor").innerHTML = '';
+            }
+            //I believe most of edge-case scenarious are covered by previous statements, so in all other scenarios we can safely pass the number to Primes()
+            else 
+            {
+                document.getElementById("answer").innerHTML = Primes(finalNumber);
+            }
+        }
+        function Primes(num)
+        {
+            document.getElementById("answer").style.color = "deeppink";
+            //we set up that 0 and 1 are not prime numbers (each of them only has 1 factor)
+            if (num <= 1)
+            {
+                document.getElementById("divisor").innerHTML = '';
+                return false;
+            }
+            //now we search for factors we could divide num by withour remainder)
+            //by using square root of num instead of num itself, we can speed up the calculation
+            //if there is no divisor (that would divide num evenly) smaller than its square root, then a divisor larger than num square root does not exist either
+            for (let i = 2; i <= Math.sqrt(num); i++) 
+            {
+                if (num % i === 0)
+                {
+                    document.getElementById("divisor").innerHTML = 'divisible by ' + i;
+                    return false;
+                }
+            }
+            //if we did not find a divisor and the number is not 0 or 1, it is prime
+            document.getElementById("answer").style.color = "lime";
+            document.getElementById("divisor").innerHTML = '';
+            return true;
+        }
+    </script>
+</body>
+</html>
